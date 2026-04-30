@@ -13,11 +13,30 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "V- | Viral Video Discovery",
-  description: "Discover and curate viral videos with AI-powered search",
+  title: "V- | Viral Video Discovery Platform",
+  description: "Discover what's trending across the globe. AI-powered search that transcends language barriers. Real-time viral video curation with theater-mode playback and intelligent qualification. The future of content discovery is here.",
   icons: {
     icon: '/icon.svg',
-    apple: '/icon.svg',
+    apple: '/apple-touch-icon.svg',
+  },
+  openGraph: {
+    title: "V- | Viral Video Discovery",
+    description: "Discover what's trending across the globe. AI-powered search that transcends language barriers. Real-time viral video curation with theater-mode playback and intelligent qualification.",
+    url: 'https://v-minus.vercel.app',
+    siteName: 'V-',
+    images: [{
+      url: '/opengraph-image.svg',
+      width: 1200,
+      height: 630,
+    }],
+    locale: 'en_US',
+    type: 'website',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: "V- | Viral Video Discovery Platform",
+    description: "Discover what's trending across the globe. AI-powered search that transcends language barriers.",
+    images: ['/opengraph-image.svg'],
   },
 };
 

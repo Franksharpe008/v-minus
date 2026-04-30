@@ -1,16 +1,43 @@
+<div align="center">
+
 # V- (V Minus)
 
-V- is a viral video discovery and curation platform powered by AI. Search, discover, and organize trending viral content from across the globe with intelligent translation and qualification.
+### *Viral Video Discovery Platform*
 
-## Features
+**Discover what's trending across the globe.** AI-powered search that transcends language barriers. Real-time viral video curation with theater-mode playback and intelligent qualification. The future of content discovery is here.
 
-- 🔍 **Smart Search** - Discover viral videos by region and timeframe
-- 🌍 **AI Translation** - Native language search via local Llama-3-8B
-- 📱 **Reel-Qualified** - Only 9:16 vertical videos accepted
-- 🎬 **Theater Mode** - Synchronized multi-video playback
-- 📋 **Moodboard** - Curate and organize your finds
+[![Vercel](https://img.shields.io/badge/deployed%20on-Vercel-black?logo=vercel&style=flat-square)](https://v-minus.vercel.app)
+[![GitHub](https://img.shields.io/badge/source-GitHub-black?logo=github&style=flat-square)](https://github.com/Franksharpe008/v-minus)
 
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+---
+
+## ✨ Features
+
+- 🔍 **Smart Search** — Discover viral videos by region and timeframe (24h, 7d, 30d)
+- 🌍 **AI Translation** — Native language search via local Llama-3-8B running in your browser
+- 📱 **Reel-Qualified** — Only 9:16 vertical videos make the cut
+- 🎬 **Theater Mode** — Synchronized multi-video playback with volume control
+- 📋 **Moodboard** — Curate and organize your viral finds
+
+## 🚀 Tech Stack
+
+- Next.js 16 + React 19 + TypeScript
+- Tailwind CSS 4 + Framer Motion
+- @mlc-ai/web-llm (browser-based LLM)
+- yt-dlp-exec (video extraction)
+
+## 📦 Installation
+
+```bash
+npm install
+npm run dev
+```
+
+Open [http://localhost:3000](http://localhost:3000) to start discovering.
+
+---
+
+</div>
 
 ## Getting Started
 
