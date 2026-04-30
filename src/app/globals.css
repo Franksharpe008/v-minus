@@ -1,0 +1,37 @@
+@import "tailwindcss";
+
+@theme {
+  --color-background: #09090b;
+  --color-foreground: #fafafa;
+  
+  --color-primary: #3b82f6;
+  --color-primary-foreground: #ffffff;
+  
+  --color-card: #18181b;
+  --color-card-border: #27272a;
+}
+
+@layer base {
+  body {
+    background-color: var(--color-background);
+    color: var(--color-foreground);
+    font-family: Arial, Helvetica, sans-serif;
+  }
+}
+
+.glass-panel {
+  background: rgba(24, 24, 27, 0.6);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+@keyframes water-ripple {
+  0% { filter: blur(0px) brightness(1); transform: scale(1); }
+  20% { filter: blur(8px) brightness(1.2); transform: scale(0.98); }
+  100% { filter: blur(0px) brightness(1); transform: scale(1); }
+}
+
+.animate-ripple {
+  animation: water-ripple 0.8s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+}
