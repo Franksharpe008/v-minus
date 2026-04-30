@@ -298,6 +298,8 @@ export default function Home() {
   const isClosingTheaterRef = useRef(false);
   const [prompt, setPrompt] = useState('');
   const [isExtracting, setIsExtracting] = useState(false);
+  const [ghostText, setGhostText] = useState('');
+  const [isUserTyping, setIsUserTyping] = useState(false);
   const [liveFeed, setLiveFeed] = useState<VideoClip[]>([]);
   const [moodboard, setMoodboard] = useState<VideoClip[]>([]);
   const [error, setError] = useState('');
@@ -322,6 +324,70 @@ export default function Home() {
   const [llmEngine, setLlmEngine] = useState<webllm.MLCEngineInterface | null>(null);
   const [llmProgress, setLlmProgress] = useState('');
   const [isLlmInitializing, setIsLlmInitializing] = useState(false);
+
+  // Ghost typing effect
+  const GHOST_EXAMPLES = [
+    'hot dog',
+    'renovations',
+    'breathing techniques',
+    'MrBeast',
+    'gaming',
+    'cooking',
+    'tech reviews',
+    'fitness',
+    'travel vlogs',
+    'music production',
+    'street interviews',
+    'comedy',
+    'news updates',
+    'sports highlights',
+    'DIY projects',
+  ];
+
+  useEffect(() => {
+    if (isUserTyping || prompt) {
+      setGhostText('');
+      return;
+    }
+
+    let exampleIndex = 0;
+    let charIndex = 0;
+    let isDeleting = false;
+    let timeout: NodeJS.Timeout;
+
+    const type = () => {
+      const currentExample = GHOST_EXAMPLES[exampleIndex];
+
+      if (isDeleting) {
+        setGhostText(currentExample.substring(0, charIndex - 1));
+        charIndex--;
+
+        if (charIndex === 0) {
+          isDeleting = false;
+          exampleIndex = (exampleIndex + 1) % GHOST_EXAMPLES.length;
+          timeout = setTimeout(type, 500);
+          return;
+        }
+
+        timeout = setTimeout(type, 50);
+      } else {
+        setGhostText(currentExample.substring(0, charIndex + 1));
+        charIndex++;
+
+        if (charIndex === currentExample.length) {
+          isDeleting = true;
+          timeout = setTimeout(type, 2000);
+          return;
+        }
+
+        timeout = setTimeout(type, 100);
+      }
+    };
+
+    timeout = setTimeout(type, 500);
+
+    return () => clearTimeout(timeout);
+  }, [isUserTyping, prompt]);
 
   const initWebLLM = async () => {
     if (llmEngine || isLlmInitializing) return;
@@ -598,12 +664,20 @@ export default function Home() {
         {/* Header */}
         <header className="flex items-center justify-between pb-4 border-b border-[var(--color-card-border)]">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-full bg-[#3b82f6] flex items-center justify-center text-white font-bold text-xl shadow-[0_0_15px_rgba(59,130,246,0.5)]">
-              V
-            </div>
+            <svg className="w-12 h-12" viewBox="0 0 100 100">
+              <defs>
+                <linearGradient id="headerGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" style={{stopColor: '#7C3AED'}} />
+                  <stop offset="100%" style={{stopColor: '#EC4899'}} />
+                </linearGradient>
+              </defs>
+              <rect width="100" height="100" fill="#09090b" rx="22"/>
+              <text x="50" y="68" fontFamily="Arial Black, sans-serif" fontSize="64" fontWeight="900" textAnchor="middle" fill="url(#headerGrad)">V</text>
+              <rect x="20" y="76" width="60" height="4" fill="url(#headerGrad)" rx="2"/>
+            </svg>
             <div>
-              <h1 className="text-2xl font-bold tracking-tight text-white">The Viral Oracle</h1>
-              <p className="text-sm text-gray-400">Autonomous Curation Engine</p>
+              <h1 className="text-2xl font-bold tracking-tight text-white">V-</h1>
+              <p className="text-sm text-gray-400">Viral Video Discovery Platform</p>
             </div>
           </div>
           
@@ -692,13 +766,30 @@ export default function Home() {
             <div className="absolute inset-y-0 left-5 flex items-center pointer-events-none">
               <Command className="h-5 w-5 text-[#3b82f6]" />
             </div>
-            <input
-              type="text"
-              className="w-full bg-[#09090b] border border-[var(--color-card-border)] text-white rounded-2xl py-5 pl-14 pr-36 focus:outline-none focus:border-[#3b82f6] focus:ring-1 focus:ring-[#3b82f6] transition-all placeholder-gray-500 text-lg shadow-2xl"
-              placeholder={`Paste URL or type search intent (will extract ${clipLimit} clips)...`}
-              value={prompt}
-              onChange={(e) => setPrompt(e.target.value)}
-            />
+            <div className="relative">
+              <input
+                type="text"
+                className="w-full bg-[#09090b] border border-[var(--color-card-border)] text-white rounded-2xl py-5 pl-14 pr-36 focus:outline-none focus:border-[#3b82f6] focus:ring-1 focus:ring-[#3b82f6] transition-all placeholder-gray-500 text-lg shadow-2xl"
+                placeholder={prompt ? '' : `Paste URL or type search (e.g., ${ghostText || 'hot dog'})...`}
+                value={prompt}
+                onChange={(e) => {
+                  setPrompt(e.target.value);
+                  setIsUserTyping(e.target.value.length > 0);
+                }}
+                onFocus={() => setIsUserTyping(true)}
+                onBlur={() => {
+                  if (!prompt) {
+                    setTimeout(() => setIsUserTyping(false), 100);
+                  }
+                }}
+              />
+              {!prompt && !isUserTyping && ghostText && (
+                <div className="absolute inset-y-0 left-14 flex items-center pointer-events-none">
+                  <span className="text-gray-500 text-lg">{ghostText}</span>
+                  <span className="w-0.5 h-5 bg-[#3b82f6] ml-0.5 animate-pulse"></span>
+                </div>
+              )}
+            </div>
             <button
               type="submit"
               disabled={isExtracting}
