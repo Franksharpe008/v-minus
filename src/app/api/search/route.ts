@@ -6,8 +6,8 @@ import { qualifyReel } from '../reel-qualification';
 
 const execPromise = util.promisify(exec);
 const MAX_CLIP_LIMIT = 6;
-const SEARCH_POOL_SIZE = 30;
-const MAX_INSPECTED_CANDIDATES = 12;
+const SEARCH_POOL_SIZE = 50;
+const MAX_INSPECTED_CANDIDATES = 20;
 const COMMAND_MAX_BUFFER = 1024 * 1024 * 10;
 
 interface SearchResult {
@@ -37,7 +37,7 @@ export async function POST(req: NextRequest) {
     if (timeframe === '30d') dateFilter = '--dateafter today-30days';
 
     // First pull a lightweight candidate pool, then inspect each candidate until enough true reels pass.
-    const searchCommand = `${ytdlpPath} "ytsearch${SEARCH_POOL_SIZE}:${query} #shorts" ${dateFilter} --dump-json --flat-playlist`;
+    const searchCommand = `${ytdlpPath} "ytsearch${SEARCH_POOL_SIZE}:${query}" ${dateFilter} --dump-json --flat-playlist`;
 
     const { stdout } = await execPromise(searchCommand, { maxBuffer: COMMAND_MAX_BUFFER });
     

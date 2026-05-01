@@ -14,9 +14,9 @@ export interface ReelQualification {
   reason?: string;
 }
 
-const MAX_REEL_DURATION_SECONDS = 65;
-const MIN_REEL_ASPECT_RATIO = 1.65;
-const MAX_REEL_ASPECT_RATIO = 1.9;
+const MAX_REEL_DURATION_SECONDS = 180;
+const MIN_REEL_ASPECT_RATIO = 1.5;
+const MAX_REEL_ASPECT_RATIO = 2.2;
 
 const toNumber = (value: unknown): number | null => {
   if (typeof value === 'number' && Number.isFinite(value)) return value;
