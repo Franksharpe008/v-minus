@@ -1,84 +1,13 @@
 import { NextResponse } from 'next/server';
+import path from 'path';
+import fs from 'fs';
+import crypto from 'crypto';
+import { exec } from 'child_process';
+import util from 'util';
 import { qualifyReel } from '../reel-qualification';
 
+const execPromise = util.promisify(exec);
 const getErrorMessage = (error: unknown) => error instanceof Error ? error.message : 'Failed to extract video';
-
-// Extract video ID from YouTube URL
-function extractVideoId(url: string): string | null {
-  const patterns = [
-    /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/shorts\/)([a-zA-Z0-9_-]{11})/,
-    /^([a-zA-Z0-9_-]{11})$/,
-  ];
-
-  for (const pattern of patterns) {
-    const match = url.match(pattern);
-    if (match) return match[1];
-  }
-
-  return null;
-}
-
-// Get video metadata from Invidious
-async function getVideoInfo(videoId: string) {
-  const instances = [
-    'https://vid.puffyan.us',
-    'https://invidious.snopyta.org',
-    'https://invidious.kavin.rocks',
-  ];
-
-  for (const instance of instances) {
-    try {
-      const response = await fetch(
-        `${instance}/api/v1/videos/${videoId}`,
-        { signal: AbortSignal.timeout(15000) }
-      );
-
-      if (!response.ok) continue;
-
-      return await response.json();
-    } catch (e) {
-      console.error(`Instance ${instance} failed:`, e);
-      continue;
-    }
-  }
-
-  return null;
-}
-
-// Get direct video URL from Invidious
-async function getDirectVideoUrl(videoId: string, format: 'video' | 'audio' = 'video'): Promise<string | null> {
-  const instances = [
-    'https://vid.puffyan.us',
-    'https://invidious.snopyta.org',
-    'https://invidious.kavin.rocks',
-  ];
-
-  for (const instance of instances) {
-    try {
-      const response = await fetch(
-        `${instance}/api/v1/videos/${videoId}?fields=formatStreams`,
-        { signal: AbortSignal.timeout(10000) }
-      );
-
-      if (!response.ok) continue;
-
-      const data = await response.json();
-      const streams = data.formatStreams || [];
-
-      // Find the best quality stream
-      const bestStream = streams
-        .filter((s: any) => s.type?.includes('video'))
-        .sort((a: any, b: any) => (b.bitrate || 0) - (a.bitrate || 0))[0];
-
-      return bestStream?.url || null;
-    } catch (e) {
-      console.error(`Stream fetch failed:`, e);
-      continue;
-    }
-  }
-
-  return null;
-}
 
 export async function POST(req: Request) {
   try {
@@ -88,67 +17,56 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'URL is required' }, { status: 400 });
     }
 
-    const videoId = extractVideoId(url);
+    const videoId = crypto.randomUUID();
+    const outputDir = path.join(process.cwd(), 'public', 'media');
 
-    if (!videoId) {
-      return NextResponse.json({
-        success: false,
-        error: 'Invalid YouTube URL. Please provide a valid YouTube video URL.',
-      }, { status: 400 });
+    // Ensure the media directory exists
+    if (!fs.existsSync(outputDir)) {
+      fs.mkdirSync(outputDir, { recursive: true });
     }
 
-    console.log(`Fetching info for video ${videoId}...`);
+    console.log(`Starting extraction for ${url}...`);
+    
+    // Path to the yt-dlp binary
+    const ytDlpPath = path.join(process.cwd(), 'node_modules', 'yt-dlp-exec', 'bin', 'yt-dlp');
 
-    // Get video info from Invidious
-    const videoInfo = await getVideoInfo(videoId);
+    // 1. Get metadata
+    const metaCmd = `${ytDlpPath} "${url}" --dump-single-json --no-warnings --no-check-certificate`;
+    const { stdout: metaOut } = await execPromise(metaCmd);
+    const metadata = JSON.parse(metaOut);
 
-    if (!videoInfo) {
-      return NextResponse.json({
-        success: false,
-        error: 'Could not fetch video information. The video may be private or unavailable.',
-      }, { status: 404 });
-    }
-
-    // Qualify the reel
-    const metadata = {
-      width: videoInfo.width,
-      height: videoInfo.height,
-      duration: videoInfo.lengthSeconds,
-    };
-
+    const title = metadata.title || 'Unknown Title';
+    const thumbnail = metadata.thumbnail || '';
     const reel = qualifyReel(metadata);
 
     if (!reel.isReel) {
       return NextResponse.json({
         success: false,
-        error: `Rejected: ${reel.reason}. V- only accepts 9:16 vertical videos.`,
+        error: `Rejected: ${reel.reason}. The Viral Oracle only accepts 9:16 reels-ready clips.`,
         reel,
       }, { status: 422 });
     }
+    
+    const finalFilename = `${videoId}.mp4`;
+    const finalPath = path.join(outputDir, finalFilename);
 
-    // Get direct video URL for streaming
-    const directUrl = await getDirectVideoUrl(videoId);
+    console.log(`Downloading video to ${finalPath}...`);
 
-    if (!directUrl) {
-      return NextResponse.json({
-        success: false,
-        error: 'Could not get video stream URL. Please try again.',
-      }, { status: 500 });
-    }
+    // 2. Download
+    const downloadCmd = `${ytDlpPath} "${url}" -o "${finalPath}" -f "bestvideo[ext=mp4][height<=1920]+bestaudio[ext=m4a]/best[ext=mp4][height<=1920]/best" --merge-output-format mp4 --no-playlist`;
+    await execPromise(downloadCmd);
 
-    // For now, we'll use the direct Invidious stream URL
-    // This avoids the need for server-side downloading
-    const localUrl = directUrl;
+    const localUrl = `/media/${finalFilename}`;
 
     return NextResponse.json({
       success: true,
       video: {
         id: videoId,
-        title: videoInfo.title || 'Unknown Title',
-        thumbnail: videoInfo.videoThumbnails?.[0]?.url || '',
+        title,
+        thumbnail,
         localUrl,
         originalUrl: url,
-        platform: 'YouTube',
+        platform: metadata.extractor_key,
         width: reel.width,
         height: reel.height,
         duration: reel.duration,
