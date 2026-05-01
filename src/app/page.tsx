@@ -39,6 +39,109 @@ interface ExtractApiResponse {
 const getErrorMessage = (error: unknown) => error instanceof Error ? error.message : String(error);
 const MEDIA_HANDOFF_DURATION_MS = 180;
 
+// 3D Fire Logo Component
+function FireLogo() {
+  return (
+    <motion.div
+      className="relative"
+      whileHover={{ scale: 1.1, rotateY: 15, rotateX: -5 }}
+      transition={{ type: "spring", stiffness: 300, damping: 20 }}
+      style={{ transformStyle: 'preserve-3d' }}
+    >
+      {/* Fire glow effect */}
+      <motion.div
+        className="absolute inset-0 rounded-full blur-xl"
+        style={{ background: 'linear-gradient(135deg, #ff6b35, #f7931e, #ffcc00)' }}
+        animate={{
+          opacity: [0.4, 0.8, 0.4],
+          scale: [1, 1.1, 1],
+        }}
+        transition={{
+          duration: 1.5,
+          repeat: Infinity,
+          ease: "easeInOut"
+        }}
+      />
+      {/* Animated flames */}
+      <motion.div
+        className="absolute -top-2 left-1/2 -translate-x-1/2"
+        animate={{
+          y: [0, -5, 0],
+          opacity: [0.8, 1, 0.8],
+        }}
+        transition={{
+          duration: 0.8,
+          repeat: Infinity,
+          ease: "easeInOut"
+        }}
+      >
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+          <path d="M12 2C12 2 8 6 8 10C8 12 10 14 12 14C14 14 16 12 16 10C16 6 12 2 12 2Z" fill="url(#fireGrad1)" opacity="0.8"/>
+          <path d="M12 4C12 4 9 7 9 10C9 11.5 10.5 13 12 13C13.5 13 15 11.5 15 10C15 7 12 4 12 4Z" fill="url(#fireGrad2)" opacity="0.6"/>
+          <defs>
+            <linearGradient id="fireGrad1" x1="0%" y1="100%" x2="0%" y2="0%">
+              <stop offset="0%" style={{stopColor: '#ff6b35'}} />
+              <stop offset="100%" style={{stopColor: '#ffcc00'}} />
+            </linearGradient>
+            <linearGradient id="fireGrad2" x1="0%" y1="100%" x2="0%" y2="0%">
+              <stop offset="0%" style={{stopColor: '#f7931e'}} />
+              <stop offset="100%" style={{stopColor: '#ffcc00'}} />
+            </linearGradient>
+          </defs>
+        </svg>
+      </motion.div>
+      {/* Main Logo */}
+      <svg className="w-12 h-12 relative z-10" viewBox="0 0 100 100">
+        <defs>
+          <linearGradient id="logoGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" style={{stopColor: '#7C3AED'}}>
+              <animate attributeName="stop-color" values="#7C3AED;#A855F7;#7C3AED" dur="3s" repeatCount="indefinite"/>
+            </stop>
+            <stop offset="100%" style={{stopColor: '#EC4899'}}>
+              <animate attributeName="stop-color" values="#EC4899;#F472B6;#EC4899" dur="3s" repeatCount="indefinite"/>
+            </stop>
+          </linearGradient>
+          <filter id="glow">
+            <feGaussianBlur stdDeviation="2" result="coloredBlur"/>
+            <feMerge>
+              <feMergeNode in="coloredBlur"/>
+              <feMergeNode in="SourceGraphic"/>
+            </feMerge>
+          </filter>
+        </defs>
+        <rect width="100" height="100" fill="#09090b" rx="22"/>
+        <text x="50" y="68" fontFamily="Arial Black, sans-serif" fontSize="64" fontWeight="900" textAnchor="middle" fill="url(#logoGrad)" filter="url(#glow)">V</text>
+        <rect x="20" y="76" width="60" height="4" fill="url(#logoGrad)" rx="2">
+          <animate attributeName="width" values="60;55;60" dur="2s" repeatCount="indefinite"/>
+        </rect>
+      </svg>
+      {/* Ember particles */}
+      {[...Array(3)].map((_, i) => (
+        <motion.div
+          key={i}
+          className="absolute w-1 h-1 rounded-full"
+          style={{
+            background: 'linear-gradient(to top, #ff6b35, #ffcc00)',
+            left: `${30 + i * 20}%`,
+            bottom: '-5px',
+          }}
+          animate={{
+            y: [0, -15 - Math.random() * 10],
+            opacity: [1, 0],
+            scale: [1, 0],
+          }}
+          transition={{
+            duration: 1 + Math.random() * 0.5,
+            repeat: Infinity,
+            delay: i * 0.3,
+            ease: "easeOut"
+          }}
+        />
+      ))}
+    </motion.div>
+  );
+}
+
 function VideoCard({ 
   clip, 
   isMuted,
@@ -663,31 +766,42 @@ export default function Home() {
       >
         {/* Header */}
         <header className="flex items-center justify-between pb-4 border-b border-[var(--color-card-border)]">
-          <div className="flex items-center gap-3">
-            <svg className="w-12 h-12" viewBox="0 0 100 100">
-              <defs>
-                <linearGradient id="headerGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-                  <stop offset="0%" style={{stopColor: '#7C3AED'}} />
-                  <stop offset="100%" style={{stopColor: '#EC4899'}} />
-                </linearGradient>
-              </defs>
-              <rect width="100" height="100" fill="#09090b" rx="22"/>
-              <text x="50" y="68" fontFamily="Arial Black, sans-serif" fontSize="64" fontWeight="900" textAnchor="middle" fill="url(#headerGrad)">V</text>
-              <rect x="20" y="76" width="60" height="4" fill="url(#headerGrad)" rx="2"/>
-            </svg>
+          <motion.div
+            className="flex items-center gap-3"
+            whileHover={{ scale: 1.02 }}
+            transition={{ type: "spring", stiffness: 400, damping: 20 }}
+          >
+            <FireLogo />
             <div>
-              <h1 className="text-2xl font-bold tracking-tight text-white">V-</h1>
+              <motion.h1
+                className="text-2xl font-bold tracking-tight text-white"
+                whileHover={{ scale: 1.05 }}
+                transition={{ type: "spring", stiffness: 500 }}
+              >V-</motion.h1>
               <p className="text-sm text-gray-400">Viral Video Discovery Platform</p>
             </div>
-          </div>
+          </motion.div>
           
           {/* Header Controls */}
           <div className="flex items-center gap-4">
             {/* Region Selector */}
-            <div className="flex items-center gap-2 bg-[#09090b] border border-[var(--color-card-border)] rounded-full px-3 py-1.5 shadow-lg transition-colors hover:border-[#3b82f6]">
-              <Globe className="w-3.5 h-3.5 text-[#3b82f6]" />
-              <select 
-                value={region} 
+            <motion.div
+              className="flex items-center gap-2 bg-[#09090b] border border-[var(--color-card-border)] rounded-full px-3 py-1.5 shadow-lg"
+              whileHover={{
+                borderColor: '#3b82f6',
+                scale: 1.05,
+                boxShadow: '0 0 15px rgba(59, 130, 246, 0.3)',
+              }}
+              transition={{ type: "spring", stiffness: 400 }}
+            >
+              <motion.div
+                animate={{ rotate: [0, 10, -10, 0] }}
+                transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+              >
+                <Globe className="w-3.5 h-3.5 text-[#3b82f6]" />
+              </motion.div>
+              <select
+                value={region}
                 onChange={e => setRegion(e.target.value)}
                 className="bg-transparent text-xs font-semibold text-white outline-none cursor-pointer"
               >
@@ -697,13 +811,26 @@ export default function Home() {
                 <option value="japan">Asia (Japan)</option>
                 <option value="brazil">South America (Brazil)</option>
               </select>
-            </div>
+            </motion.div>
 
             {/* Timeframe Selector */}
-            <div className="flex items-center gap-2 bg-[#09090b] border border-[var(--color-card-border)] rounded-full px-3 py-1.5 shadow-lg transition-colors hover:border-[#3b82f6]">
-              <Clock className="w-3.5 h-3.5 text-[#3b82f6]" />
-              <select 
-                value={timeframe} 
+            <motion.div
+              className="flex items-center gap-2 bg-[#09090b] border border-[var(--color-card-border)] rounded-full px-3 py-1.5 shadow-lg"
+              whileHover={{
+                borderColor: '#3b82f6',
+                scale: 1.05,
+                boxShadow: '0 0 15px rgba(59, 130, 246, 0.3)',
+              }}
+              transition={{ type: "spring", stiffness: 400 }}
+            >
+              <motion.div
+                animate={{ rotate: [0, 360] }}
+                transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
+              >
+                <Clock className="w-3.5 h-3.5 text-[#3b82f6]" />
+              </motion.div>
+              <select
+                value={timeframe}
                 onChange={e => setTimeframe(e.target.value)}
                 className="bg-transparent text-xs font-semibold text-white outline-none cursor-pointer"
               >
@@ -712,32 +839,57 @@ export default function Home() {
                 <option value="7d">Last 7 Days</option>
                 <option value="30d">Last 30 Days</option>
               </select>
-            </div>
+            </motion.div>
 
             {/* Quantity Selector */}
-            <div className="flex items-center gap-3 bg-black border border-[var(--color-card-border)] rounded-full px-4 py-2">
+            <motion.div
+              className="flex items-center gap-3 bg-black border border-[var(--color-card-border)] rounded-full px-4 py-2"
+              whileHover={{
+                borderColor: '#3b82f6',
+                scale: 1.02,
+                boxShadow: '0 0 15px rgba(59, 130, 246, 0.2)',
+              }}
+              transition={{ type: "spring", stiffness: 400 }}
+            >
               <span className="text-xs font-semibold text-gray-400 flex items-center gap-1"><Settings2 className="w-3 h-3"/> Pull Amount:</span>
               <div className="flex gap-1">
                 {[1, 2, 4, 6].map(num => (
-                  <button 
+                  <motion.button
                     key={num}
                     onClick={() => setClipLimit(num)}
                     className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold transition-all ${clipLimit === num ? 'bg-[#3b82f6] text-white shadow-[0_0_8px_rgba(59,130,246,0.5)] scale-110' : 'bg-transparent text-gray-500 hover:text-white hover:bg-white/10'}`}
+                    whileHover={{ scale: 1.2 }}
+                    whileTap={{ scale: 0.9 }}
                   >
                     {num}
-                  </button>
+                  </motion.button>
                 ))}
               </div>
-            </div>
+            </motion.div>
 
-            <button 
+            <motion.button
               onClick={initWebLLM}
               disabled={!!llmEngine || isLlmInitializing}
               className={`flex items-center gap-2 text-xs font-semibold px-4 py-2.5 rounded-full border ${llmEngine ? 'bg-green-500/10 border-green-500/30 text-green-400' : 'bg-white/5 border-white/10 text-gray-400 hover:bg-white/10'}`}
+              whileHover={{
+                scale: 1.05,
+                borderColor: llmEngine ? '#22c55e' : '#3b82f6',
+                boxShadow: llmEngine ? '0 0 15px rgba(34, 197, 94, 0.3)' : '0 0 15px rgba(59, 130, 246, 0.3)',
+              }}
+              whileTap={{ scale: 0.95 }}
+              animate={llmEngine ? {
+                boxShadow: ['0 0 10px rgba(34, 197, 94, 0.3)', '0 0 20px rgba(34, 197, 94, 0.5)', '0 0 10px rgba(34, 197, 94, 0.3)'],
+              } : {}}
+              transition={{ duration: 2, repeat: Infinity }}
             >
-              <BrainCircuit className="w-4 h-4" />
+              <motion.div
+                animate={llmEngine ? { scale: [1, 1.1, 1], rotate: [0, 5, -5, 0] } : {}}
+                transition={{ duration: 2, repeat: Infinity }}
+              >
+                <BrainCircuit className="w-4 h-4" />
+              </motion.div>
               {llmEngine ? 'Neural Engine Active' : isLlmInitializing ? 'Initializing...' : 'Initialize WebLLM'}
-            </button>
+            </motion.button>
           </div>
         </header>
 
@@ -745,29 +897,58 @@ export default function Home() {
         <section className="flex flex-col gap-4">
           {/* Trend Categories */}
           <div className="flex items-center gap-3 overflow-x-auto pb-2 scrollbar-hide">
-            <div className="flex items-center gap-2 text-gray-400 text-sm font-medium pr-4 border-r border-[var(--color-card-border)]">
+            <motion.div
+              className="flex items-center gap-2 text-gray-400 text-sm font-medium pr-4 border-r border-[var(--color-card-border)]"
+              whileHover={{ scale: 1.05, x: 5 }}
+              transition={{ type: "spring", stiffness: 400 }}
+            >
               <Activity className="w-4 h-4" />
               Live Trends
-            </div>
-            {TREND_CATEGORIES.map(category => (
-              <button
+            </motion.div>
+            {TREND_CATEGORIES.map((category, index) => (
+              <motion.button
                 key={category.label}
                 onClick={() => executeSearch(category.query)}
                 disabled={isExtracting}
-                className="whitespace-nowrap flex items-center gap-2 px-4 py-2 rounded-full bg-[#09090b] border border-[var(--color-card-border)] text-sm font-medium text-white hover:border-[#3b82f6] hover:text-[#3b82f6] transition-colors disabled:opacity-50 hover:bg-[#3b82f6]/5"
+                className="whitespace-nowrap flex items-center gap-2 px-4 py-2 rounded-full bg-[#09090b] border border-[var(--color-card-border)] text-sm font-medium text-white transition-colors disabled:opacity-50 hover:bg-[#3b82f6]/5"
+                whileHover={{
+                  scale: 1.08,
+                  borderColor: '#3b82f6',
+                  color: '#3b82f6',
+                  boxShadow: '0 0 20px rgba(59, 130, 246, 0.4)',
+                }}
+                whileTap={{ scale: 0.95 }}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ type: "spring", stiffness: 400, delay: index * 0.05 }}
               >
                 {category.label}
-              </button>
+              </motion.button>
             ))}
           </div>
 
           {/* Command Input */}
-          <form onSubmit={handleCommand} className="relative group mt-2">
-            <div className="absolute inset-y-0 left-5 flex items-center pointer-events-none z-10">
+          <motion.form
+            onSubmit={handleCommand}
+            className="relative group mt-2"
+            whileHover={{ scale: 1.005 }}
+            transition={{ type: "spring", stiffness: 400 }}
+          >
+            <motion.div
+              className="absolute inset-y-0 left-5 flex items-center pointer-events-none z-10"
+              animate={{
+                rotate: [0, 5, -5, 0],
+              }}
+              transition={{
+                duration: 3,
+                repeat: Infinity,
+                ease: "easeInOut",
+              }}
+            >
               <Command className="h-5 w-5 text-[#3b82f6]" />
-            </div>
+            </motion.div>
             <div className="relative">
-              <input
+              <motion.input
                 type="text"
                 className="w-full bg-[#09090b] border border-[var(--color-card-border)] text-white rounded-2xl py-5 pl-14 pr-36 focus:outline-none focus:border-[#3b82f6] focus:ring-1 focus:ring-[#3b82f6] transition-all text-lg shadow-2xl"
                 placeholder=""
@@ -782,27 +963,53 @@ export default function Home() {
                     setTimeout(() => setIsUserTyping(false), 100);
                   }
                 }}
+                whileFocus={{
+                  scale: 1.01,
+                  boxShadow: '0 0 30px rgba(59, 130, 246, 0.2)',
+                }}
+                transition={{ type: "spring", stiffness: 400 }}
               />
               {!prompt && !isUserTyping && (
                 <div className="absolute inset-y-0 left-14 flex items-center pointer-events-none">
                   <span className="text-gray-500 text-lg">Paste URL or search for</span>
-                  <span className="text-[#EC4899] text-lg ml-1.5">{ghostText}</span>
+                  <motion.span
+                    className="text-[#EC4899] text-lg ml-1.5"
+                    animate={{
+                      textShadow: ['0 0 10px rgba(236, 72, 153, 0.5)', '0 0 20px rgba(236, 72, 153, 0.8)', '0 0 10px rgba(236, 72, 153, 0.5)'],
+                    }}
+                    transition={{ duration: 1.5, repeat: Infinity }}
+                  >{ghostText}</motion.span>
                   <span className="w-0.5 h-5 bg-[#3b82f6] ml-0.5 animate-pulse"></span>
                 </div>
               )}
             </div>
-            <button
+            <motion.button
               type="submit"
               disabled={isExtracting}
-              className="absolute right-3 top-3 bottom-3 bg-white text-black px-6 rounded-xl font-medium hover:bg-gray-200 transition-colors disabled:opacity-50 flex items-center gap-2"
+              className="absolute right-3 top-3 bottom-3 bg-white text-black px-6 rounded-xl font-medium flex items-center gap-2 disabled:opacity-50"
+              whileHover={{
+                scale: 1.05,
+                backgroundColor: '#f0f0f0',
+                boxShadow: '0 0 20px rgba(255, 255, 255, 0.3)',
+              }}
+              whileTap={{ scale: 0.95 }}
+              animate={isExtracting ? {
+                boxShadow: ['0 0 10px rgba(59, 130, 246, 0.3)', '0 0 20px rgba(59, 130, 246, 0.6)', '0 0 10px rgba(59, 130, 246, 0.3)'],
+              } : {}}
+              transition={{ duration: 1, repeat: Infinity }}
             >
               {isExtracting ? (
-                <Loader2 className="w-4 h-4 animate-spin" />
+                <motion.div
+                  animate={{ rotate: 360 }}
+                  transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                >
+                  <Loader2 className="w-4 h-4" />
+                </motion.div>
               ) : (
                 'Execute'
               )}
-            </button>
-          </form>
+            </motion.button>
+          </motion.form>
           
           {/* Status / Error Messaging */}
           {(llmProgress || error) && (
