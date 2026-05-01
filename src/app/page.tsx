@@ -763,14 +763,14 @@ export default function Home() {
 
           {/* Command Input */}
           <form onSubmit={handleCommand} className="relative group mt-2">
-            <div className="absolute inset-y-0 left-5 flex items-center pointer-events-none">
+            <div className="absolute inset-y-0 left-5 flex items-center pointer-events-none z-10">
               <Command className="h-5 w-5 text-[#3b82f6]" />
             </div>
             <div className="relative">
               <input
                 type="text"
-                className="w-full bg-[#09090b] border border-[var(--color-card-border)] text-white rounded-2xl py-5 pl-14 pr-36 focus:outline-none focus:border-[#3b82f6] focus:ring-1 focus:ring-[#3b82f6] transition-all placeholder-gray-500 text-lg shadow-2xl"
-                placeholder={prompt ? '' : `Paste URL or type search (e.g., ${ghostText || 'hot dog'})...`}
+                className="w-full bg-[#09090b] border border-[var(--color-card-border)] text-white rounded-2xl py-5 pl-14 pr-36 focus:outline-none focus:border-[#3b82f6] focus:ring-1 focus:ring-[#3b82f6] transition-all text-lg shadow-2xl"
+                placeholder=""
                 value={prompt}
                 onChange={(e) => {
                   setPrompt(e.target.value);
@@ -783,9 +783,10 @@ export default function Home() {
                   }
                 }}
               />
-              {!prompt && !isUserTyping && ghostText && (
+              {!prompt && !isUserTyping && (
                 <div className="absolute inset-y-0 left-14 flex items-center pointer-events-none">
-                  <span className="text-gray-500 text-lg">{ghostText}</span>
+                  <span className="text-gray-500 text-lg">Paste URL or search for</span>
+                  <span className="text-[#EC4899] text-lg ml-1.5">{ghostText}</span>
                   <span className="w-0.5 h-5 bg-[#3b82f6] ml-0.5 animate-pulse"></span>
                 </div>
               )}
